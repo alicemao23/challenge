@@ -12,6 +12,7 @@ export default class TodoContainer extends Component {
 			todos: []
 		}
 		server.on('initialList', (DB)=> {
+			console.log('on ninila', DB);
 			this.setState({todos: DB})
 		}); 
 		this.handleChange = this.handleChange.bind(this);
@@ -28,13 +29,21 @@ export default class TodoContainer extends Component {
 		this.setState({todoItem: event.target.value});
 	}
 
-	addTask () {
+	addTask (event) {
+		event.preventDefault(); 
 
+		let newTask = {
+			title: this.state.todoItem
+		}
+		let newList = this.state.todos; 
+		newList.push(newTask);
+		server.emit('ADD_TASK', newTask);
+		this.setState({
+			todos: newList, 
+			todoItem: ''
+		});
 	}
 
-	retrieveTodoList () {
-
-	}
 	render(){
 		console.log(this.state.todos);
 		return(
