@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import Todo from './todoitem';
+import React from 'react';
+// import Todo from './todoitem';
 
-export default function TodoList ({todos}) {
+export default function TodoList () {
 		return(
 			<div>
 				yup

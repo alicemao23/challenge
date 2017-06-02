@@ -17,12 +17,6 @@ function add() {
     // TODO: refocus the element
 }
 
-ReactDOM.render(
-  <App />,
-  document.getElementById('app')
-);
-
-
 function render(todo) {
     console.log(todo);
     const listItem = document.createElement('li');

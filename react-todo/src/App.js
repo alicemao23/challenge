@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 import Todos from './containers/todo-container';
-import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
