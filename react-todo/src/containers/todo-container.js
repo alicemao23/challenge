@@ -11,16 +11,21 @@ export default class TodoContainer extends Component {
 			todoItem: '',
 			todos: []
 		}
+		server.on('initialList', (DB)=> {
+			this.setState({todos: DB})
+		}); 
 		this.handleChange = this.handleChange.bind(this);
 		this.addTask = this.addTask.bind(this);
 	}
 
 	componentWillMount() {
-		// server.on('load', DB); 
+		// server.on('initialList', (DB)=> {
+		// 	this.setState({todos: DB})
+		// }); 
 	}
 
 	handleChange(event) {
-		this.setState({movieSearch: event.target.value});
+		this.setState({todoItem: event.target.value});
 	}
 
 	addTask () {
@@ -31,6 +36,7 @@ export default class TodoContainer extends Component {
 
 	}
 	render(){
+		console.log(this.state.todos);
 		return(
 			<div>
 				<div>
@@ -39,11 +45,11 @@ export default class TodoContainer extends Component {
 						<button type="submit" value="submit"> Add! </button> 
 					</form> 
 				</div>
-
-				{
+				{ this.state.todos && this.state.todos.length ?
 					<div>
-						<Todos/>
-					</div>
+						<Todos tasks={this.state.todos}/>
+					</div> :
+					"error"
 				}
 			</div>
 			);

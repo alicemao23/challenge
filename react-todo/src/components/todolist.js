@@ -1,11 +1,12 @@
 import React from 'react';
-// import Todo from './todoitem';
+import Todo from './todoitem';
 
-export default function TodoList () {
+export default function TodoList (props) {
 		return(
 			<div>
-				yup
+				{props.tasks.map(task=> <Todo taskInfo={task}/>)}
 			</div>
 		)
 
 }
+

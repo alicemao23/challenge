@@ -3,13 +3,13 @@ console.log('\n\nGood Luck! 😅\n\n');
 
 const server = require('socket.io')();
 const firstTodos = require('../data');
-// const Todo = require('./todo');
+const Todo = require('../todo');
 
 // console.log(Todo);
 server.on('connection', (client) => {
 
     client.on('disconnect', function(){
-        console.log('Disconnected - '+ socket.id);
+        console.log('Disconnected - '+ client.id);
     });
 
     console.log('connected')

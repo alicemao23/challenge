@@ -1,11 +1,11 @@
 import React from 'react';
 
 export default function Todo({
-	todoItem,
+	taskInfo
 }){
 	return (
 		<div>
-			Showing!
+			{taskInfo.title}
 		</div>
 		)
 }
