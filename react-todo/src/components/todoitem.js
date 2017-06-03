@@ -17,6 +17,13 @@ class Todo extends React.Component {
         this.props.deleteTask.bind(this)
     }
 
+    componentWillReceiveProps(nextProps){
+    	this.setState({
+    		itemStyle: this._getItemStyle(nextProps.data.completed, true)
+    	})
+    	console.log('prop updated', nextProps)
+    }
+
     _getItemStyle(completed, shouldDisplay) {
         let itemStyle = {
             display: shouldDisplay ? 'block' : 'none',
@@ -33,12 +40,9 @@ class Todo extends React.Component {
         this.setState({
             itemStyle: this._getItemStyle(checked, true)
         });
-        	console.log(isFunction(this.props.onChange))
-        if (isFunction(this.props.toggleComplete)) {
-            var newTodo = clone(this.props.data);
-            newTodo.completed = checked;
-            this.props.toggleComplete(newTodo);
-        }
+        let newTodo = clone(this.props.data);
+        newTodo.completed = checked;
+        this.props.toggleComplete(newTodo);
     }
 
     _getTextStyle(shouldDisplay) {
