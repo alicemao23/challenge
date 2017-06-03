@@ -3,30 +3,41 @@ console.log('\n\nGood Luck! 😅\n\n');
 lastId = 0;
 const server = require('socket.io')();
 const firstTodos = require('../data');
-const Todo = require('../todo');
+const Todo = require('../src/todo');
 
 // console.log(Todo);
 server.on('connection', (client) => {
 
-    client.on('disconnect', function(){
-        console.log('Disconnected - '+ client.id);
-    });
+    // client.on('disconnect', function(){
+    //     // console.log('')
+    //     console.log('Disconnected - '+ client.id, DB);
+    // });
 
-    console.log('connected')
+    console.log('connected', client.id);
     // This is going to be our fake 'database' for this application
     // Parse all default Todo's from db
 
     // // FIXME: DB is reloading on client refresh. It should be persistent on new client connections from the last time the server was run...
-    const DB = firstTodos.map((t, i) => {
+    let DB = firstTodos.map((t, i) => {
         // Form new Todo objects
         return new Todo(title=t.title, i);
     });
 
-    client.emit('initialList',DB); 
+    client.emit('initial_List',DB); 
 
     client.on('ADD_TASK', (task)=> {
-        console.log(task);
-        firstTodos.push(task);
+        DB.push(task);
+        server.emit('task_added', task)
+    })
+
+    client.on('TASK_CHANGED', (tasks)=> {
+        DB = tasks;
+        server.emit('task_changed', DB)
+    })
+
+    client.on('TASK_DELETED', (tasks) => {
+        DB = tasks; 
+        server.emit('task_deleted', DB);
     })
     // // Sends a message to the client to reload all todos
     // const reloadTodos = () => {
@@ -48,6 +59,11 @@ server.on('connection', (client) => {
 
     // // Send the DB downstream on connect
     // reloadTodos();
+    client.on('disconnect', function(){
+        // console.log('')
+        console.log('Disconnected - '+ client.id, DB);
+    });
+
 });
 
 console.log('Waiting for clients to connect');

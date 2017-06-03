@@ -8,25 +8,38 @@ const server = io('http://localhost:3003/');
 export default class TodoContainer extends Component {
 	constructor () {
 		super();
-
+		console.log('refreshed');
 		this.state= {
 			todoItem: '',
 			todos: [], 
 		}
-		server.on('initialList', (DB)=> {
+		server.on('initial_List', (DB)=> {
 			this.setState({todos: DB})
 		}); 
-		this.handleChange = this.handleChange.bind(this);
-		this.addTask = this.addTask.bind(this);
-		this.todoChanged = this.todoChanged.bind(this);
-		this.removeTodo = this.removeTodo.bind(this);
-		// this.deleteAll = this.deleteAll.bind(this);
 
+		server.on('task_Changed', (todos) =>{
+			// console.log('this is new tasks', todos);
+			this.setState({
+				todos: todos
+			})
+		});
 
+		server.on('task_added', (task) => {
+			this.setState(prevState => ({
+		        todos: [...prevState.todos, task],
+		        todoItem: ''
+		    }));
+		})
+
+		server.on('task_deleted', (tasks) => {
+			this.setState({
+				todos: tasks
+			})
+		})
 	}
 
 	componentWillMount() {
-		
+
 	}
 
 	handleChange(event) {
@@ -37,10 +50,6 @@ export default class TodoContainer extends Component {
 		event.preventDefault(); 
 		let id = new Date();
 		let newTask = new Todo(this.state.todoItem, id);
-		this.setState(prevState => ({
-	        todos: [...prevState.todos, newTask],
-	        todoItem: ''
-	    }));
 		server.emit('ADD_TASK', newTask);
 	}
 
@@ -52,28 +61,12 @@ export default class TodoContainer extends Component {
 					return todo;
 				}
 			});
-
-		this.setState({
-			todos: newtodos
-		})
+		server.emit('TASK_CHANGED', newtodos);
 	}
 
-	// _getItemStyle(completed, shouldDisplay) {
- //        let itemStyle = {
- //            display: shouldDisplay ? 'block' : 'none',
- //            MozUserSelect: 'none',
- //            WebkitUserSelect: 'none',
- //            msUserSelect: 'none',
- //            textDecoration: completed ? 'line-through' : 'none',
- //            color: completed ? Colors.grey500 : Colors.black
- //        };
- //        return itemStyle;
- //    }
-
 	removeTodo(id) {
-	    this.setState(prevState => ({
-	      todos: prevState.todos.filter(todo => todo.id !== id),
-	    }));
+		let updatedTodos = this.state.todos.filter(todo => todo.id !==id);
+		server.emit('TASK_DELETED', updatedTodos);
 	 };
 
 	 deleteAll(event){
@@ -82,6 +75,7 @@ export default class TodoContainer extends Component {
 	 		todos: []
 	 	})
 	 }
+
 	 completeAll(event){
 	 	event.preventDefault(); 
 	 	let newtodos = this.state.todos.map((todo)=> {
@@ -92,13 +86,13 @@ export default class TodoContainer extends Component {
 	    	todos: newtodos
 	    });
 	 }
+
 	render(){
-		console.log(this.state.todos);
 		return(
 			<div>
 				<div>
-					<form onSubmit={this.addTask}>
-						<input placeholder="Add Todo Items" value={this.state.todoItem} onChange={this.handleChange} /> 
+					<form onSubmit={this.addTask.bind(this)}>
+						<input placeholder="Add Todo Items" value={this.state.todoItem} onChange={this.handleChange.bind(this)} /> 
 						<button type="submit" value="submit"> Add! </button> 
 					</form> 
 					<button onClick={this.deleteAll.bind(this)}> Delete All </button> 
@@ -106,7 +100,7 @@ export default class TodoContainer extends Component {
 				</div>
 				{ this.state.todos && this.state.todos.length ?
 					<div>
-						<Todos tasks={this.state.todos} toggleComplete={this.todoChanged} deleteTask={this.removeTodo}/>
+						<Todos tasks={this.state.todos} toggleComplete={this.todoChanged.bind(this)} deleteTask={this.removeTodo.bind(this)}/>
 					</div> :
 					"No Todos Yet!"
 				}

@@ -12,7 +12,7 @@ class Todo extends React.Component {
         this.state = {
             showDelete: false,
             itemStyle: this._getItemStyle(this.props.data.completed, true),
-            txtStyle: this._getTextStyle(false)
+            // txtStyle: this._getTextStyle(false)
         };
         this.props.deleteTask.bind(this)
     }
@@ -45,14 +45,14 @@ class Todo extends React.Component {
         this.props.toggleComplete(newTodo);
     }
 
-    _getTextStyle(shouldDisplay) {
-        let txtStyle = {
-            display: shouldDisplay ? 'block' : 'none',
-            padding: '16px 16px 11px 60px',
-            boxSizing: 'border-box'
-        };
-        return txtStyle;
-    }
+    // _getTextStyle(shouldDisplay) {
+    //     let txtStyle = {
+    //         display: shouldDisplay ? 'block' : 'none',
+    //         padding: '16px 16px 11px 60px',
+    //         boxSizing: 'border-box'
+    //     };
+    //     return txtStyle;
+    // }
 
     _showDeleteBtn(e) {
         this.setState({showDelete: true});
@@ -62,12 +62,12 @@ class Todo extends React.Component {
         this.setState({showDelete: false});
     }
 
-    _onDeleteItem(e) {
-        if (!isFunction(this.props.onDelete)) {
-            return;
-        }
-        this.props.onDelete(this.props.data.id);
-    }
+    // _onDeleteItem(e) {
+    //     if (!isFunction(this.props.onDelete)) {
+    //         return;
+    //     }
+    //     this.props.onDelete(this.props.data.id);
+    // }
 
     // _runInEdit() {
     //     this.setState({
