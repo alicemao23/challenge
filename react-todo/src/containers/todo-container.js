@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
-import { Grid, Row, Col, Button, PageHeader, Panel, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Grid, Row, Col, Button, PageHeader, Panel, } from 'react-bootstrap';
 import Todos from '../components/todolist';
 import Todo from '../todo';
 const io = require('socket.io-client') 
@@ -23,7 +23,7 @@ export default class TodoContainer extends Component {
 					server: true
 				})
 				server.emit('RECONNECTED', this.state.todos);
-			} else if (this.state.server == '') {
+			} else if (this.state.server === '') {
 				this.retrieveData();
 			}
 		})
@@ -45,7 +45,9 @@ export default class TodoContainer extends Component {
 
 		server.on('disconnect', () => { 
 			if(this.state.server){
-				this.state.server = false
+				this.setState({
+					server: false
+				})
 			}
 			localStorage.setItem('list', JSON.stringify(this.state.todos));
 		})
@@ -119,7 +121,7 @@ export default class TodoContainer extends Component {
 
 	todoChanged(task){
 		let newtodos = this.state.todos.map((todo)=> {
-				if (todo.id == task.id){
+				if (todo.id === task.id){
 					return todo = task; 
 				} else {
 					return todo;
@@ -153,8 +155,6 @@ export default class TodoContainer extends Component {
 
 	 toggleFilter(event) {
 	 	event.preventDefault();
-	 	var value = event.target.value;
-    	console.log(value, " was selected");
     	this.setState({filter: event.target.value});
 	 }
 	render(){
@@ -198,7 +198,6 @@ export default class TodoContainer extends Component {
 								<option value="all"> Show All </option> 
 								<option value="completed"> Show Completed </option> 
 								<option value="incompletes"> Show Incompletes </option> 
-
 							</select>
 						    <Button onClick={this.deleteAll.bind(this)}> Delete All </Button> 
 							<Button onClick={this.completeAll.bind(this)}> Complete All </Button> 
@@ -214,10 +213,3 @@ export default class TodoContainer extends Component {
 			);
 	}
 }
-         // <button type="submit" value="submit"  disabled={!this.state.todoItem}> Add! </button> 
-
-	// { this.state.server ? <form onSubmit={this.addTask.bind(this)}>
-					// 	<input placeholder="Add Todo Items" value={this.state.todoItem} onChange={this.handleChange.bind(this)} /> 
-					// 	<button type="submit" value="submit"> Add! </button> 
-					// </form> : <h5> Server Disconnected! </h5>
-					// }

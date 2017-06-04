@@ -1,15 +1,11 @@
 import React from 'react';
 import Todo from './todoitem';
 import List from 'material-ui/List/List';
-import ListItem from 'material-ui/List/ListItem';
-import Checkbox from 'material-ui/Checkbox';
+// import ListItem from 'material-ui/List/ListItem';
+// import Checkbox from 'material-ui/Checkbox';
 
 
 class TodoList extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         let _this = this;
         let listStyle = {

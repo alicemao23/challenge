@@ -31,6 +31,7 @@
     text-align: center;
 }
 .todo-container{
+  margin-top: 20px;
   border: 1px solid #b3bbcc;
 }
 @keyframes App-logo-spin {

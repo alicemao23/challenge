@@ -1,8 +1,8 @@
 import React from 'react';
-import { ListItem, Divider, TextField, Checkbox } from 'material-ui';
+import { ListItem, Divider, Checkbox } from 'material-ui';
 import * as Colors from 'material-ui/styles/colors';
-import { isFunction, clone, trim } from 'lodash';
-import FontIcon from 'material-ui/FontIcon';
+import { clone } from 'lodash';
+// import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 
 
