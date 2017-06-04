@@ -13,25 +13,26 @@ class TodoList extends React.Component {
     render() {
         let _this = this;
         let listStyle = {
-            paddingTop: '0px',
+            padding: '0px',
             display: this.props.tasks.length ? 'block' : 'none'
         };
 
         var filterHandler = (todo) => {
-            if (this.props.filter === 'all') {
+            if (this.props.filters === 'all') {
                 return true;
             }
-            if (this.props.filter === 'completed') {
+            if (this.props.filters === 'completed') {
                 return todo.completed;
             }
 
-            console.log('todo completed', todo.completed);
-            return !todo.completed;
+            if (this.props.filters === 'incomplete') {
+                return !todo.completed;
+            }
         };
 
         return (
             <List style={ listStyle }>
-              { this.props.tasks.map(function(todo, index) {
+              { this.props.tasks.filter(filterHandler).map(function(todo, index) {
                     return <Todo deleteTask={ _this.props.deleteTask }
                              toggleComplete={ _this.props.toggleComplete }
                              key={ todo.id }

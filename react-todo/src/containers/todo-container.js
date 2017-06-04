@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import TextField from 'material-ui/TextField';
+import { Grid, Row, Col, Button, PageHeader, Panel } from 'react-bootstrap';
 import Todos from '../components/todolist';
 import Todo from '../todo';
 const io = require('socket.io-client') 
@@ -12,17 +14,24 @@ export default class TodoContainer extends Component {
 		this.state= {
 			todoItem: '',
 			todos: [], 
-			server: true, 
+			server: '', 
+			filter: 'all'
 		}
 		server.on('connect', () => {
-			if(!this.state.server) {
+			if(this.state.server === false) {
 				this.setState({
 					server: true
 				})
 				server.emit('RECONNECTED', this.state.todos);
-			} else {
+			} else if (this.state.server == '') {
 				this.retrieveData();
 			}
+		})
+
+		server.on('reconnection_established', (tasks)=> {
+			this.setState({
+				todos: tasks
+			})
 		})
 
 		server.once('connect_error', () => {
@@ -32,46 +41,17 @@ export default class TodoContainer extends Component {
 					server: false
 				})
 			}
-			// let cachedTodos = JSON.parse(localStorage.getItem('list')); 
-				// this.state.server =  false; 
-				// this.state.todos = cachedTodos;
-				// console.log('updating')
-			// console.log('connection error');
-			// if (this.state.server) {
-			// 	this.setState({
-			// 		server: false
-			// 	})
-			// 	// localStorage.setItem('server-connection', false);
-			// 	localStorage.setItem('list', JSON.stringify(this.state.todos));
-			// } else {
-			// 	let cachedTodos = JSON.parse(localStorage.getItem('list')); 
-			// 	console.log('reconnected:',cachedTodos);
-			// 	this.setState({
-			// 		todos: cachedTodos
-			// 	})
-			// }
 		})
 
 		server.on('disconnect', () => { 
-			console.log('disconnected')
 			if(this.state.server){
 				this.state.server = false
 			}
-
-		// 	server.emit('RECONNECTED', this.state.todos);
-		// 	if(!this.state.server){
-		// 		let cachedTodos = JSON.parse(localStorage.getItem('list')); 
-		// 		console.log('reconnected:',cachedTodos);
-		// 		this.setState({
-		// 			server: true, 
-		// 			todos: cachedTodos
-		// 		})
-		// 	}
 			localStorage.setItem('list', JSON.stringify(this.state.todos));
 		})
 
 		server.on('initial_List', (DB)=> {
-			this.setState({todos: DB})
+			this.setState({todos: DB, server: true})
 		}); 
 
 		server.on('task_changed', (todos) =>{
@@ -79,22 +59,10 @@ export default class TodoContainer extends Component {
 		});
 
 		server.on('task_added', (task) => {
-			// this.setState(prevState => ({
-		 //        todos: [...prevState.todos, task],
-		 //        todoItem: ''
-		 //    }));
 		    this.pushNewTask(task)
-		 // 	this.setState({
-			// 	todos: tasks
-			// })
-			// this.modifyTodoState(tasks)
-
 		})
 
 		server.on('task_deleted', (tasks) => {
-			// this.setState({
-			// 	todos: tasks
-			// })
 			this.modifyTodoState(tasks)
 
 		})
@@ -103,9 +71,12 @@ export default class TodoContainer extends Component {
 		let cachedTodos = JSON.parse(localStorage.getItem('list'));
 		//check to see if server is connected 
 		//if server is connected && have ran before, retrieve data from cache
-			if(cachedTodos === null){
+			if(cachedTodos  === null||cachedTodos.length === 0){
+				console.log('this is null')
 				server.emit('GET_INITIAL_TASK')
 			}else if(cachedTodos.length > 0){
+				console.log(
+					'what the fuck')
 				//retrieve initial task from server
 				this.setState({
 					todos: cachedTodos
@@ -161,10 +132,7 @@ export default class TodoContainer extends Component {
 
 	removeTodo(id) {
 		let updatedTodos = this.state.todos.filter(todo => todo.id !==id);
-
 		this.updateState('TASK_DELETED', updatedTodos);
-
-		// server.emit('TASK_DELETED', updatedTodos);
 	 };
 
 	 deleteAll(event){
@@ -186,27 +154,60 @@ export default class TodoContainer extends Component {
 	 }
 
 	render(){
-		 console.log('rerendering')
+		 console.log('rerendering');
+		 let inputStyle = {
+            padding: '16px 16px 11px 60px',
+            boxSizing: 'border-box'
+        };
+        let underlineStyle = {marginLeft: '-60px', bottom: '0px'};
 		return(
 			<div>
-				<div>
-					{ this.state.server ? <form onSubmit={this.addTask.bind(this)}>
-						<input placeholder="Add Todo Items" value={this.state.todoItem} onChange={this.handleChange.bind(this)} /> 
-						<button type="submit" value="submit"> Add! </button> 
-					</form> : <h5> Server Disconnected! </h5>
-
-
+				<Grid className="body-container">
+					<Row>
+					{ this.state.server ?
+						<div>
+						<Col mdOffset={1} md={8}> 
+							<form onSubmit={this.addTask.bind(this)}>
+							<TextField hintText="What needs to be done?"
+				                fullWidth={ true }
+				                value={ this.state.todoItem }
+				                onChange= {this.handleChange.bind(this)}
+				                style={ inputStyle }
+				                underlineStyle={ underlineStyle }
+				                />
+				            </form>
+			            </Col>
+			            <Col md={2}> 
+			            	<Button type="submit" value="submit"  disabled={!this.state.todoItem} bsStyle="info">Add Task!</Button>
+			            </Col>
+			            </div>
+			                : 
+		
+			            <h5> Server Disconnected! </h5>
 					}
-					<button onClick={this.deleteAll.bind(this)}> Delete All </button> 
-					<button onClick={this.completeAll.bind(this)}> Complete All </button> 
-				</div>
+				</Row>
 				{ this.state.todos && this.state.todos.length ?
-					<div>
-						<Todos tasks={this.state.todos} toggleComplete={this.todoChanged.bind(this)} deleteTask={this.removeTodo.bind(this)}/>
-					</div> :
+					<Col mdOffset={1} md={10} className="todo-container">
+						<PageHeader>Your Todo List</PageHeader>
+						<Panel>
+						    <Button onClick={this.deleteAll.bind(this)}> Delete All </Button> 
+							<Button onClick={this.completeAll.bind(this)}> Complete All </Button> 
+						</Panel>
+						<Todos filters={this.state.filter} tasks={this.state.todos} toggleComplete={this.todoChanged.bind(this)} deleteTask={this.removeTodo.bind(this)}/>
+					</Col>
+					// </div> 
+					:
 					"No Todos Yet!"
 				}
+				</Grid>
 			</div>
 			);
 	}
 }
+         // <button type="submit" value="submit"  disabled={!this.state.todoItem}> Add! </button> 
+
+	// { this.state.server ? <form onSubmit={this.addTask.bind(this)}>
+					// 	<input placeholder="Add Todo Items" value={this.state.todoItem} onChange={this.handleChange.bind(this)} /> 
+					// 	<button type="submit" value="submit"> Add! </button> 
+					// </form> : <h5> Server Disconnected! </h5>
+					// }

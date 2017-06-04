@@ -4,32 +4,29 @@ console.log('\n\nGood Luck! 😅\n\n');
 const server = require('socket.io')();
 const firstTodos = require('../data');
 const Todo = require('../src/todo');
+
+// This is going to be our fake 'database' for this application
+// Parse all default Todo's from db
+//Moved DB to the outside of server connection so that DB can persistent regardless socket connection 
+console.log('new connection');
 let DB = firstTodos.map((t, i) => {
-    // Form new Todo objects
+    // Form new Todo objects with ID 
     return new Todo(title=t.title, i);
 })
-// console.log(Todo);
+console.log(DB);
 server.on('connection', (client) => {
 
-    console.log('connected', client.id);
-    console.log('just refreshed')
-    // This is going to be our fake 'database' for this application
-    // Parse all default Todo's from db
+    console.log('connected', client.id, DB);
 
     // // // FIXME: DB is reloading on client refresh. It should be persistent on new client connections from the last time the server was run...
-    // let DB = firstTodos.map((t, i) => {
-    //     // Form new Todo objects
-    //     return new Todo(title=t.title, i);
-    // });
     
     client.on('GET_INITIAL_TASK', function() {
-        console.log('initial task');
-        client.emit('initial_List',DB); 
+        client.emit('initial_List', DB); 
    })
 
     client.on('RECONNECTED', (tasks) => {
         DB = tasks;
-        // client.emit('initial_List',DB); 
+        client.emit('reconnection_established', DB); 
     })
    
 

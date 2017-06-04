@@ -18,6 +18,17 @@
   font-size: large;
 }
 
+.button {
+  height: 100%;
+}
+
+.body-container{
+  padding: 25px 0;
+}
+
+.todo-container{
+  border: 1px solid #b3bbcc;
+}
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

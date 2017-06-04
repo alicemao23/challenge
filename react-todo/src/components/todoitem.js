@@ -60,14 +60,6 @@ class Todo extends React.Component {
     _hideDeleteBtn(e) {
         this.setState({showDelete: false});
     }
-
-    // _onDeleteItem(e) {
-    //     if (!isFunction(this.props.onDelete)) {
-    //         return;
-    //     }
-    //     this.props.onDelete(this.props.data.id);
-    // }
-
     // _runInEdit() {
     //     this.setState({
     //         itemStyle: this._getItemStyle(this.props.data.completed, false),
