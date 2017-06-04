@@ -21,7 +21,6 @@ class Todo extends React.Component {
     	this.setState({
     		itemStyle: this._getItemStyle(nextProps.data.completed, true)
     	})
-    	console.log('prop updated', nextProps)
     }
 
     _getItemStyle(completed, shouldDisplay) {

@@ -1,29 +1,37 @@
 // FIXME: Feel free to remove this :-)
 console.log('\n\nGood Luck! 😅\n\n');
-lastId = 0;
+
 const server = require('socket.io')();
 const firstTodos = require('../data');
 const Todo = require('../src/todo');
-
+let DB = firstTodos.map((t, i) => {
+    // Form new Todo objects
+    return new Todo(title=t.title, i);
+})
 // console.log(Todo);
 server.on('connection', (client) => {
 
-    // client.on('disconnect', function(){
-    //     // console.log('')
-    //     console.log('Disconnected - '+ client.id, DB);
-    // });
-
     console.log('connected', client.id);
+    console.log('just refreshed')
     // This is going to be our fake 'database' for this application
     // Parse all default Todo's from db
 
-    // // FIXME: DB is reloading on client refresh. It should be persistent on new client connections from the last time the server was run...
-    let DB = firstTodos.map((t, i) => {
-        // Form new Todo objects
-        return new Todo(title=t.title, i);
-    });
+    // // // FIXME: DB is reloading on client refresh. It should be persistent on new client connections from the last time the server was run...
+    // let DB = firstTodos.map((t, i) => {
+    //     // Form new Todo objects
+    //     return new Todo(title=t.title, i);
+    // });
+    
+    client.on('GET_INITIAL_TASK', function() {
+        console.log('initial task');
+        client.emit('initial_List',DB); 
+   })
 
-    client.emit('initial_List',DB); 
+    client.on('RECONNECTED', (tasks) => {
+        DB = tasks;
+        // client.emit('initial_List',DB); 
+    })
+   
 
     client.on('ADD_TASK', (task)=> {
         DB.push(task);
@@ -60,11 +68,15 @@ server.on('connection', (client) => {
     // // Send the DB downstream on connect
     // reloadTodos();
     client.on('disconnect', function(){
-        // console.log('')
         console.log('Disconnected - '+ client.id, DB);
     });
 
 });
+
+server.on('disconnect', (client) => {
+    console.log('fuck');
+    client.emit('disconnected', DB);
+})
 
 console.log('Waiting for clients to connect');
 server.listen(3003);
