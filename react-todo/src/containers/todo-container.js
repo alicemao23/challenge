@@ -22,18 +22,6 @@ export default class TodoContainer extends Component {
 				server: true
 			})
 			this.retrieveData();
-
-
-			// if(this.state.server === true) {
-			// 	console.log('disconnected before')
-			// 	this.setState({
-			// 		server: true
-			// 	})
-			// 	server.emit('RECONNECTED', this.state.todos);
-			// } else if (this.state.server === false) {
-			// 	console.log('first time')
-			// 	this.retrieveData();
-			// }
 		})
 
 		server.on('reconnection_established', (tasks)=> {
@@ -53,11 +41,9 @@ export default class TodoContainer extends Component {
 		})
 
 		server.on('disconnect', () => {
-			// if(this.state.server){
 				this.setState({
 					server: false
 				})
-			// }
 			localStorage.setItem('list', JSON.stringify(this.state.todos));
 		})
 
@@ -196,9 +182,9 @@ export default class TodoContainer extends Component {
 					{ this.state.server ?
 						<div>
 							<form onSubmit={this.addTask.bind(this)}>
-								<Col mdOffset={1} md={8}> 
+								<Col mdOffset={1} md={8} xsOffset={1} xs={7}> 
 									
-									<TextField hintText="What needs to be done?"
+									<TextField hintText="new tasks here"
 						                fullWidth={ true }
 						                value={ this.state.todoItem }
 						                onChange= {this.handleChange.bind(this)}
@@ -206,7 +192,7 @@ export default class TodoContainer extends Component {
 						                underlineStyle={ underlineStyle }
 						                />
 					            </Col>
-					            <Col md={2}> 
+					            <Col md={2} xs={2}> 
 					            	<Button type="submit" value="submit"  disabled={!this.state.todoItem} bsStyle="info">Add Task!</Button>
 					            </Col>
 			            	</form>
@@ -217,7 +203,7 @@ export default class TodoContainer extends Component {
 					}
 				</Row>
 				{ this.state.todos && this.state.todos.length ?
-					<Col mdOffset={1} md={10} className="todo-container">
+					<Col mdOffset={1} md={10} sm={12} className="todo-container">
 						<PageHeader>Your Todo List</PageHeader>
 						<Panel>
 							<select className="btn btn-default filter-selector" onChange={this.toggleFilter.bind(this)}> 
