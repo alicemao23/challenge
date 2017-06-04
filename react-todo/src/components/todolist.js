@@ -25,7 +25,7 @@ class TodoList extends React.Component {
                 return todo.completed;
             }
 
-            if (this.props.filters === 'incomplete') {
+            if (this.props.filters === 'incompletes') {
                 return !todo.completed;
             }
         };

@@ -26,6 +26,10 @@
   padding: 25px 0;
 }
 
+.filter-selector{
+    height: 34px;
+    text-align: center;
+}
 .todo-container{
   border: 1px solid #b3bbcc;
 }

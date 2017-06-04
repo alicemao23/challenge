@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
-import { Grid, Row, Col, Button, PageHeader, Panel } from 'react-bootstrap';
+import { Grid, Row, Col, Button, PageHeader, Panel, DropdownButton, MenuItem } from 'react-bootstrap';
 import Todos from '../components/todolist';
 import Todo from '../todo';
 const io = require('socket.io-client') 
@@ -75,8 +75,6 @@ export default class TodoContainer extends Component {
 				console.log('this is null')
 				server.emit('GET_INITIAL_TASK')
 			}else if(cachedTodos.length > 0){
-				console.log(
-					'what the fuck')
 				//retrieve initial task from server
 				this.setState({
 					todos: cachedTodos
@@ -153,6 +151,12 @@ export default class TodoContainer extends Component {
 	    });
 	 }
 
+	 toggleFilter(event) {
+	 	event.preventDefault();
+	 	var value = event.target.value;
+    	console.log(value, " was selected");
+    	this.setState({filter: event.target.value});
+	 }
 	render(){
 		 console.log('rerendering');
 		 let inputStyle = {
@@ -190,6 +194,12 @@ export default class TodoContainer extends Component {
 					<Col mdOffset={1} md={10} className="todo-container">
 						<PageHeader>Your Todo List</PageHeader>
 						<Panel>
+							<select className="btn btn-default filter-selector" onChange={this.toggleFilter.bind(this)}> 
+								<option value="all"> Show All </option> 
+								<option value="completed"> Show Completed </option> 
+								<option value="incompletes"> Show Incompletes </option> 
+
+							</select>
 						    <Button onClick={this.deleteAll.bind(this)}> Delete All </Button> 
 							<Button onClick={this.completeAll.bind(this)}> Complete All </Button> 
 						</Panel>
