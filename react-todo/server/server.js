@@ -25,10 +25,15 @@ server.on('connection', (client) => {
    })
 
     client.on('RECONNECTED', (tasks) => {
-        DB = tasks;
+        // DB = tasks;
         client.emit('reconnection_established', DB); 
     })
    
+
+    client.on('ALL_TASK_DELETED', (tasks) => {
+        DB = tasks;
+        client.emit('task_deleted', DB); 
+    })
 
     client.on('ADD_TASK', (task)=> {
         DB.push(task);
@@ -44,6 +49,7 @@ server.on('connection', (client) => {
         DB = tasks; 
         server.emit('task_deleted', DB);
     })
+
     // // Sends a message to the client to reload all todos
     // const reloadTodos = () => {
     //     server.emit('load', DB);

@@ -31,6 +31,7 @@ class TodoList extends React.Component {
               { this.props.tasks.filter(filterHandler).map(function(todo, index) {
                     return <Todo deleteTask={ _this.props.deleteTask }
                              toggleComplete={ _this.props.toggleComplete }
+                             editTask={_this.props.editTask}
                              key={ todo.id }
                              data={ todo }/>;
                 }) }

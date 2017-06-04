@@ -18,14 +18,22 @@ export default class TodoContainer extends Component {
 			filter: 'all'
 		}
 		server.on('connect', () => {
-			if(this.state.server === false) {
-				this.setState({
-					server: true
-				})
-				server.emit('RECONNECTED', this.state.todos);
-			} else if (this.state.server === '') {
-				this.retrieveData();
-			}
+			this.setState({
+				server: true
+			})
+			this.retrieveData();
+
+
+			// if(this.state.server === true) {
+			// 	console.log('disconnected before')
+			// 	this.setState({
+			// 		server: true
+			// 	})
+			// 	server.emit('RECONNECTED', this.state.todos);
+			// } else if (this.state.server === false) {
+			// 	console.log('first time')
+			// 	this.retrieveData();
+			// }
 		})
 
 		server.on('reconnection_established', (tasks)=> {
@@ -36,19 +44,20 @@ export default class TodoContainer extends Component {
 
 		server.once('connect_error', () => {
 			if(this.state.server){
-				this.retrieveData();
 				this.setState({
 					server: false
 				})
-			}
+			} 
+			this.retrieveCached();
+
 		})
 
-		server.on('disconnect', () => { 
-			if(this.state.server){
+		server.on('disconnect', () => {
+			// if(this.state.server){
 				this.setState({
 					server: false
 				})
-			}
+			// }
 			localStorage.setItem('list', JSON.stringify(this.state.todos));
 		})
 
@@ -61,14 +70,26 @@ export default class TodoContainer extends Component {
 		});
 
 		server.on('task_added', (task) => {
+			console.log(task)
 		    this.pushNewTask(task)
 		})
 
 		server.on('task_deleted', (tasks) => {
 			this.modifyTodoState(tasks)
-
 		})
+
 	}	
+
+	retrieveCached(){
+		let cachedTodos = JSON.parse(localStorage.getItem('list'));
+		if(cachedTodos.length > 0){
+				console.log('been online before, getting cached');
+				this.setState({
+					// server: true,
+					todos: cachedTodos
+				})
+		}
+	}
 	retrieveData () {
 		let cachedTodos = JSON.parse(localStorage.getItem('list'));
 		//check to see if server is connected 
@@ -77,10 +98,12 @@ export default class TodoContainer extends Component {
 				console.log('this is null')
 				server.emit('GET_INITIAL_TASK')
 			}else if(cachedTodos.length > 0){
-				//retrieve initial task from server
-				this.setState({
-					todos: cachedTodos
-				})
+				console.log('been online before');
+				// this.setState({
+					// server: true,
+					// todos: cachedTodos
+				// })
+				server.emit('RECONNECTED')
 			}
 	} 
 
@@ -104,11 +127,13 @@ export default class TodoContainer extends Component {
 			todos: newState
 		})
 	}
+
 	handleChange(event) {
 		this.setState({todoItem: event.target.value});
 	}
 
 	addTask (event) {
+		console.log('adding')
 		event.preventDefault(); 
 		let id = new Date();
 		let newTask = new Todo(this.state.todoItem, id);
@@ -137,9 +162,7 @@ export default class TodoContainer extends Component {
 
 	 deleteAll(event){
 	 	event.preventDefault(); 
-	 	this.setState({
-	 		todos: []
-	 	})
+	 	this.updateState('ALL_TASK_DELETED', [])
 	 }
 
 	 completeAll(event){
@@ -148,17 +171,28 @@ export default class TodoContainer extends Component {
 			todo.completed = true; 
 			return todo;
 		});
-	    this.setState({
-	    	todos: newtodos
-	    });
+		this.updateState('TASK_CHANGED', newtodos);
 	 }
 
 	 toggleFilter(event) {
+	 	//Added Toggle UI for Users to quickly look through completed/Incomplete tasks 
 	 	event.preventDefault();
     	this.setState({filter: event.target.value});
 	 }
+
+	 editTask(task){
+		let newtodos = this.state.todos.map((todo)=> {
+				if (todo.id === task.id){
+					todo.title = task.title; 
+					todo.completed = false;
+					return todo
+				} else {
+					return todo;
+				}
+			})	
+	 	this.updateState('TASK_CHANGED', newtodos);
+	 }
 	render(){
-		 console.log('rerendering');
 		 let inputStyle = {
             padding: '16px 16px 11px 60px',
             boxSizing: 'border-box'
@@ -170,21 +204,22 @@ export default class TodoContainer extends Component {
 					<Row>
 					{ this.state.server ?
 						<div>
-						<Col mdOffset={1} md={8}> 
 							<form onSubmit={this.addTask.bind(this)}>
-							<TextField hintText="What needs to be done?"
-				                fullWidth={ true }
-				                value={ this.state.todoItem }
-				                onChange= {this.handleChange.bind(this)}
-				                style={ inputStyle }
-				                underlineStyle={ underlineStyle }
-				                />
-				            </form>
-			            </Col>
-			            <Col md={2}> 
-			            	<Button type="submit" value="submit"  disabled={!this.state.todoItem} bsStyle="info">Add Task!</Button>
-			            </Col>
-			            </div>
+								<Col mdOffset={1} md={8}> 
+									
+									<TextField hintText="What needs to be done?"
+						                fullWidth={ true }
+						                value={ this.state.todoItem }
+						                onChange= {this.handleChange.bind(this)}
+						                style={ inputStyle }
+						                underlineStyle={ underlineStyle }
+						                />
+					            </Col>
+					            <Col md={2}> 
+					            	<Button type="submit" value="submit"  disabled={!this.state.todoItem} bsStyle="info">Add Task!</Button>
+					            </Col>
+			            	</form>
+			              </div>
 			                : 
 		
 			            <h5> Server Disconnected! </h5>
@@ -202,11 +237,13 @@ export default class TodoContainer extends Component {
 						    <Button onClick={this.deleteAll.bind(this)}> Delete All </Button> 
 							<Button onClick={this.completeAll.bind(this)}> Complete All </Button> 
 						</Panel>
-						<Todos filters={this.state.filter} tasks={this.state.todos} toggleComplete={this.todoChanged.bind(this)} deleteTask={this.removeTodo.bind(this)}/>
+						<Todos filters={this.state.filter} tasks={this.state.todos} toggleComplete={this.todoChanged.bind(this)} deleteTask={this.removeTodo.bind(this)} editTask={this.editTask.bind(this)}/>
 					</Col>
-					// </div> 
 					:
-					"No Todos Yet!"
+					<Col mdOffset={1} md={10} className="todo-container">
+					<PageHeader>No More Tasks!</PageHeader>
+					</Col>
+
 				}
 				</Grid>
 			</div>
