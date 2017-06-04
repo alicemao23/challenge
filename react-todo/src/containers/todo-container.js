@@ -83,26 +83,17 @@ export default class TodoContainer extends Component {
 	retrieveCached(){
 		let cachedTodos = JSON.parse(localStorage.getItem('list'));
 		if(cachedTodos.length > 0){
-				console.log('been online before, getting cached');
 				this.setState({
-					// server: true,
 					todos: cachedTodos
 				})
 		}
 	}
 	retrieveData () {
 		let cachedTodos = JSON.parse(localStorage.getItem('list'));
-		//check to see if server is connected 
-		//if server is connected && have ran before, retrieve data from cache
+		//check to see user was previously connected to server and saved cached
 			if(cachedTodos  === null||cachedTodos.length === 0){
-				console.log('this is null')
 				server.emit('GET_INITIAL_TASK')
 			}else if(cachedTodos.length > 0){
-				console.log('been online before');
-				// this.setState({
-					// server: true,
-					// todos: cachedTodos
-				// })
 				server.emit('RECONNECTED')
 			}
 	} 
